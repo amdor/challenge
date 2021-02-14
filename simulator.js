@@ -13,7 +13,7 @@ $(() => {
     });
 
     $("#speedUpButton").on("click", () => {
-        animationSpeed += 100;
+        animationSpeed += 2000;
     });
 });
 
@@ -27,7 +27,7 @@ async function startSimulation(firstMember) {
         const $currentMember = $("#members .team-member");
         const newSeat = getNextSeat(currentMember);
         try {
-            seatMember(newSeat);
+            seatMember(newSeat, currentMember);
         } catch (err) {
             alert(err.message);
             isInvalid = true;
@@ -39,6 +39,7 @@ async function startSimulation(firstMember) {
         await startAnimation(newSeat, $currentMember);
         roundCount++;
     }
+    console.log(evaluate());
 };
 
 

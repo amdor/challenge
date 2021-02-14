@@ -35,7 +35,7 @@ function createTeamMember() {
     return newMember;
 };
 
-function seatMember({ tableId, rowId, seatId, member }) {
+function seatMember({ tableId, rowId, seatId }, member) {
     if (!freeSeatCount) {
         return;
     }
@@ -47,4 +47,34 @@ function seatMember({ tableId, rowId, seatId, member }) {
     row[seatId] = member;
     freeSeatCount--;
     return;
+}
+
+
+function evaluate() {
+    let result = 0;
+    seatedMembers.forEach((table) => {
+        table.forEach((row) => {
+            let sameCount = 1;
+            row.forEach((member, seat) => {
+                if (member.name === row[seat + 1]?.name) {
+                    sameCount++;
+                    return;
+                }
+                switch (sameCount) {
+                    case 2:
+                        result += 1;
+                        break;
+                    case 3:
+                    case 4:
+                        result += 2;
+                        break;
+                    case 5:
+                        result += 5;
+                        break;
+                }
+                sameCount = 1;
+            });
+        });
+    });
+    return result;
 }
