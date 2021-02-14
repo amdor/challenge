@@ -1,28 +1,45 @@
-const animateToPosition = 13;
+let animationSpeed = 300; // px/s
 
 $(() => {
-    initialize();
+    initializeEvaluator();
 
     initializeTables(NUMBER_OF_TABLES);
 
     const newMember = createTeamMember();
     addNewTeamMember(newMember);
+
+    $("#simulateButton").on("click", () => {
+        startSimulation(newMember);
+    });
+
+    $("#speedUpButton").on("click", () => {
+        animationSpeed += 100;
+    });
 });
 
-function addNewTeamMember(newMember) {
-    const $teamMember = $(`<img class="team-member" src="${newMember.imgSrc}" />`);
-    $("#members").append($teamMember);
-    $teamMember.on("click", () => {
-        const targetTableId = Math.floor(animateToPosition / 10);
-        const animationStepId = animateToPosition - targetTableId * 10 < 5 ? 0 : 1;
-        newParent = $(`#position${animateToPosition}`);
-        interMediateParent = $(`#row${targetTableId}AnimationStep${animationStepId}`);
 
-        animateToNewParent($teamMember, interMediateParent, () => {
-            animateToNewParent($teamMember, newParent, () => addNewTeamMember());
-        });
-    });
-}
+async function startSimulation(firstMember) {
+    let isInvalid = false;
+
+    let roundCount = 0;
+    let currentMember = firstMember;
+    while (roundCount < NUMBER_OF_ROUNDS && freeSeatCount && !isInvalid) {
+        const $currentMember = $("#members .team-member");
+        const newSeat = getNextSeat(currentMember);
+        try {
+            seatMember(newSeat);
+        } catch (err) {
+            alert(err.message);
+            isInvalid = true;
+        }
+
+        currentMember = createTeamMember();
+        addNewTeamMember(currentMember);
+
+        await startAnimation(newSeat, $currentMember);
+        roundCount++;
+    }
+};
 
 
 //////////////////////////
@@ -56,7 +73,22 @@ function initializeTables(tableCount) {
     }
 }
 
-function animateToNewParent(element, newParent, complete) {
+function addNewTeamMember(newMember) {
+    const $teamMember = $(`<img class="team-member" src="${newMember.imgSrc}" />`);
+    $("#members").append($teamMember);
+    return $teamMember;
+}
+
+async function startAnimation({ tableId, rowId, seatId }, $teamMember) {
+    const animateToPosition = tableId * 10 + rowId * 5 + seatId;
+    const $newParent = $(`#position${animateToPosition}`);
+    const $interMediateParent = $(`#row${tableId}AnimationStep${rowId}`);
+
+    await animateToNewParent($teamMember, $interMediateParent);
+    return animateToNewParent($teamMember, $newParent);
+}
+
+async function animateToNewParent(element, newParent) {
     var oldOffset = element.offset();
     element.appendTo(newParent);
     var newOffset = element.offset();
@@ -71,11 +103,13 @@ function animateToNewParent(element, newParent, complete) {
     element.hide();
 
     // 200 px/s speed
-    const speed = Math.abs(Math.abs(newOffset.top - oldOffset.top) / 200 - Math.abs(newOffset.left - oldOffset.left) / 200) * 1000;
-    $temp.animate({ "top": newOffset.top, "left": newOffset.left }, speed, "linear", () => {
-        element.show();
-        $temp.remove();
-        complete?.();
+    const speed = Math.abs(Math.abs(newOffset.top - oldOffset.top) / animationSpeed - Math.abs(newOffset.left - oldOffset.left) / animationSpeed) * 1000;
+    return new Promise((resolve) => {
+        $temp.animate({ "top": newOffset.top, "left": newOffset.left }, speed, "linear", () => {
+            element.show();
+            $temp.remove();
+            resolve();
+        });
     });
 }
 
