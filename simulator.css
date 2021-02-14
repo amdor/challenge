@@ -12,7 +12,8 @@ body {
 }
 
 .team-member,
-.seat {
+.seat,
+#members {
   width: 35px;
   height: 35px;
 }

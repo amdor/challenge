@@ -1,23 +1,22 @@
 const animateToPosition = 13;
 
 $(() => {
-    const numberOfRounds = 100;
+    initialize();
 
-    addNewTeamMember();
+    initializeTables(NUMBER_OF_TABLES);
 
-    initializeTables(7);
-
+    const newMember = createTeamMember();
+    addNewTeamMember(newMember);
 });
 
-function addNewTeamMember() {
-    const $teamMember = $(`<img class="team-member" src="assets/loki.png" />`);
-    $("#source").append($teamMember);
-    const teamMemberOffset = $teamMember.offset();
+function addNewTeamMember(newMember) {
+    const $teamMember = $(`<img class="team-member" src="${newMember.imgSrc}" />`);
+    $("#members").append($teamMember);
     $teamMember.on("click", () => {
-        const targetRowId = Math.floor(animateToPosition / 10);
-        const animationStepId = animateToPosition - targetRowId * 10 < 5 ? 0 : 1;
+        const targetTableId = Math.floor(animateToPosition / 10);
+        const animationStepId = animateToPosition - targetTableId * 10 < 5 ? 0 : 1;
         newParent = $(`#position${animateToPosition}`);
-        interMediateParent = $(`#row${targetRowId}AnimationStep${animationStepId}`);
+        interMediateParent = $(`#row${targetTableId}AnimationStep${animationStepId}`);
 
         animateToNewParent($teamMember, interMediateParent, () => {
             animateToNewParent($teamMember, newParent, () => addNewTeamMember());
@@ -25,6 +24,10 @@ function addNewTeamMember() {
     });
 }
 
+
+//////////////////////////
+//// UI FUNTIONS /////////
+//////////////////////////
 function initializeTables(tableCount) {
     for (let j = 0; j < tableCount; j++) {
         const rowId = `row${j}`;
@@ -53,15 +56,6 @@ function initializeTables(tableCount) {
     }
 }
 
-
-function getTopForMember(i) {
-    return Math.floor(i / 5) * 105;
-}
-
-function getLeftForMember(i) {
-    return 10 + (i % 5) * 57;
-}
-
 function animateToNewParent(element, newParent, complete) {
     var oldOffset = element.offset();
     element.appendTo(newParent);
@@ -84,3 +78,15 @@ function animateToNewParent(element, newParent, complete) {
         complete?.();
     });
 }
+
+//////////////////////////
+//// UTIL FUNTIONS /////////
+//////////////////////////
+function getTopForMember(i) {
+    return Math.floor(i / 5) * 105;
+}
+
+function getLeftForMember(i) {
+    return 10 + (i % 5) * 57;
+}
+
