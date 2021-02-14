@@ -7,7 +7,7 @@ body {
 
 #source {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   height: 35px;
 }
 
