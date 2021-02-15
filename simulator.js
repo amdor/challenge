@@ -76,6 +76,7 @@ function initializeTables(tableCount) {
 
 function addNewTeamMember(newMember) {
     const $teamMember = $(`<img class="team-member" src="${newMember.imgSrc}" />`);
+    newMember.isManager && $teamMember.addClass("manager");
     $("#members").append($teamMember);
     return $teamMember;
 }

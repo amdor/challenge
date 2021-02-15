@@ -27,10 +27,12 @@ function initializeEvaluator() {
 
 function createTeamMember() {
     const randomTeam = Math.floor(Math.random() * 4);
+    const isManager = Math.floor(Math.random() * 20) === 1;
     const teamName = TEAMS[randomTeam];
     const newMember = {
         name: teamName,
-        imgSrc: TEAM_PICTURE[teamName]
+        imgSrc: TEAM_PICTURE[teamName],
+        isManager
     };
     return newMember;
 };
@@ -52,12 +54,14 @@ function seatMember({ tableId, rowId, seatId }, member) {
 
 function evaluate() {
     let result = 0;
-    seatedMembers.forEach((table) => {
-        table.forEach((row) => {
+    seatedMembers.forEach((table, tableId) => {
+        table.forEach((row, rowId) => {
             let sameCount = 1;
+            let hasSame = false;
             row.forEach((member, seat) => {
                 if (member.name === row[seat + 1]?.name) {
                     sameCount++;
+                    hasSame = true;
                     return;
                 }
                 switch (sameCount) {
@@ -69,11 +73,14 @@ function evaluate() {
                         result += 2;
                         break;
                     case 5:
-                        result += 5;
+                        result += 3;
                         break;
                 }
                 sameCount = 1;
             });
+            if (!hasSame) {
+                result += 3;
+            }
         });
     });
     return result;

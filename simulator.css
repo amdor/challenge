@@ -32,3 +32,7 @@ body {
   position: absolute;
   z-index: 1000;
 }
+
+.manager {
+  border: 3px solid orangered;
+}
