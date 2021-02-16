@@ -24,8 +24,16 @@ async function startSimulation(firstMember) {
     let roundCount = 0;
     let currentMember = firstMember;
     while (roundCount < NUMBER_OF_ROUNDS && freeSeatCount && !isInvalid) {
+        roundCount++;
         const $currentMember = $("#members .team-member");
         const newSeat = getNextSeat(currentMember);
+        if (!newSeat) {
+            $currentMember.remove();
+            currentMember = createTeamMember();
+            addNewTeamMember(currentMember);
+            continue;
+        }
+
         try {
             seatMember(newSeat, currentMember);
         } catch (err) {
@@ -37,9 +45,13 @@ async function startSimulation(firstMember) {
         addNewTeamMember(currentMember);
 
         await startAnimation(newSeat, $currentMember);
-        roundCount++;
     }
-    console.log(evaluate());
+    if (!isInvalid) {
+        console.log(evaluate());
+    } else {
+        console.log(0);
+    }
+
 };
 
 

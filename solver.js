@@ -4,6 +4,13 @@ let tableId = 0;
 let seatId = -1;
 
 function getNextSeat(nextMember) {
+    if (tableId > 3) {
+        return undefined;
+    }
+    if (tableId === 3 && seatId === 3) {
+        tableId++;
+        return undefined;
+    }
     if (seatId === 4) {
         rowId ^= 1;
         seatId = 0;
