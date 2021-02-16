@@ -1,4 +1,4 @@
-const NUMBER_OF_ROUNDS = 100;
+const NUMBER_OF_ROUNDS = 80;
 const NUMBER_OF_TABLES = 7;
 const TEAMS = { 0: "Loki", 1: "Berserkers", 2: "Sindri", 3: "Core" };
 const TEAM_PICTURE = {
@@ -42,7 +42,7 @@ function seatMember({ tableId, rowId, seatId }, member) {
         return;
     }
     const row = seatedMembers[tableId]?.[rowId];
-    if (!row || seatId > 4 || row[seatId]) {
+    if (!row || seatId > 4 || row[seatId] || (seatId > 0 && row[seatId - 1] === undefined)) {
         throw new Error("invalid position");
     }
 
@@ -58,6 +58,19 @@ function evaluate() {
         table.forEach((row, rowId) => {
             let sameCount = 1;
             let hasSame = false;
+
+            if (!row.length) {
+                result -= 10;
+                return;
+            }
+
+            if (row.length < 5) {
+                result -= (5 - row.length);
+            }
+
+            if (row[4]?.isManager) {
+                return;
+            }
             row.forEach((member, seat) => {
                 if (member.name === row[seat + 1]?.name) {
                     sameCount++;
