@@ -41,7 +41,7 @@ function seatMember({ tableId, rowId, seatId }, member) {
     if (!freeSeatCount) {
         return;
     }
-    const row = seatedMembers[tableId]?.[rowId];
+    const row = seatedMembers[tableId] && seatedMembers[tableId][rowId];
     if (!row || seatId > 4 || row[seatId] || (seatId > 0 && row[seatId - 1] === undefined)) {
         throw new Error("invalid position");
     }
@@ -68,11 +68,11 @@ function evaluate() {
                 result -= (5 - row.length);
             }
 
-            if (row[4]?.isManager) {
+            if (row[4] && row[4].isManager) {
                 return;
             }
             row.forEach((member, seat) => {
-                if (member.name === row[seat + 1]?.name) {
+                if (member.name === (row[seat + 1] && row[seat + 1].name)) {
                     sameCount++;
                     hasSame = true;
                     return;
@@ -98,3 +98,41 @@ function evaluate() {
     });
     return result;
 }
+
+function simulateWithoutUI() {
+    let sum = 0;
+    for (let i = 0; i < 100; i++) {
+        initializeEvaluator();
+        initializeSolver();
+        let isInvalid = false;
+        let currentMember = createTeamMember();
+        let roundCount = 0;
+        freeSeatCount = NUMBER_OF_TABLES * 10
+        while (roundCount < NUMBER_OF_ROUNDS && freeSeatCount && !isInvalid) {
+            roundCount++;
+            const newSeat = getNextSeat(currentMember, seatedMembers);
+            if (!newSeat) {
+                currentMember = createTeamMember();
+                continue;
+            }
+
+            try {
+                seatMember(newSeat, currentMember);
+            } catch (err) {
+                isInvalid = true;
+            }
+
+            currentMember = createTeamMember();
+        }
+        if (!isInvalid) {
+            const score = evaluate();
+            sum += score;
+            console.log(score);
+        } else {
+            console.log(0);
+        }
+    }
+    console.log("Avrg " + sum / 100);
+}
+
+// module.exports = { simulateWithoutUI };

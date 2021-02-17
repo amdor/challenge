@@ -5,6 +5,10 @@ body {
   max-width: 900px;
 }
 
+span {
+  margin-right: 20px;
+}
+
 #source {
   display: flex;
   justify-content: space-between;

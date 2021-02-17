@@ -1,7 +1,9 @@
 let animationSpeed = 300; // px/s
+let numberOfMembersSeated = 0;
 
 $(() => {
     initializeEvaluator();
+    initializeSolver();
 
     initializeTables(NUMBER_OF_TABLES);
 
@@ -26,7 +28,7 @@ async function startSimulation(firstMember) {
     while (roundCount < NUMBER_OF_ROUNDS && freeSeatCount && !isInvalid) {
         roundCount++;
         const $currentMember = $("#members .team-member");
-        const newSeat = getNextSeat(currentMember);
+        const newSeat = getNextSeat(currentMember, seatedMembers);
         if (!newSeat) {
             $currentMember.remove();
             currentMember = createTeamMember();
@@ -45,13 +47,14 @@ async function startSimulation(firstMember) {
         addNewTeamMember(currentMember);
 
         await startAnimation(newSeat, $currentMember);
+        numberOfMembersSeated++;
+        $("#counter").text(numberOfMembersSeated);
     }
     if (!isInvalid) {
-        console.log(evaluate());
+        $("#score").text(evaluate());
     } else {
-        console.log(0);
+        $("#score").text(0);
     }
-
 };
 
 
