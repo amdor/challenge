@@ -3,6 +3,7 @@
 let rowId = 0;
 let tableId = 0;
 let seatId = -1;
+let hasKaikaku = true;
 
 
 
@@ -10,14 +11,11 @@ function initializeSolver() {
     rowId = 0;
     tableId = 0;
     seatId = -1;
+    hasKaikaku = true;
 }
 
-function getNextSeat(nextMember, seatedMembers) {
+function getNextSeat(nextMember, evaluatorSeatedMembers) {
     // if (tableId > 3) {
-    //     return undefined;
-    // }
-    // if (tableId === 3 && seatId === 3) {
-    //     tableId++;
     //     return undefined;
     // }
     if (seatId === 4) {
@@ -30,5 +28,11 @@ function getNextSeat(nextMember, seatedMembers) {
     } else {
         seatId++;
     }
-    return { tableId, rowId, seatId };
+
+    if (tableId === 0 && rowId === 0 && seatId === 1 && hasKaikaku) {
+        seatId--;
+        hasKaikaku = false;
+        return { seat: { tableId, rowId, seatId }, kaikaku: true };
+    }
+    return { seat: { tableId, rowId, seatId } };
 }

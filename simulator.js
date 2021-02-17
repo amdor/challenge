@@ -1,4 +1,4 @@
-let animationSpeed = 300; // px/s
+let animationSpeed = 500; // px/s
 let numberOfMembersSeated = 0;
 
 $(() => {
@@ -15,7 +15,10 @@ $(() => {
     });
 
     $("#speedUpButton").on("click", () => {
-        animationSpeed += 2000;
+        animationSpeed *= 1.5;
+    });
+    $("#slowDownButton").on("click", () => {
+        animationSpeed /= 1.5;
     });
 });
 
@@ -25,11 +28,23 @@ async function startSimulation(firstMember) {
 
     let roundCount = 0;
     let currentMember = firstMember;
-    while (roundCount < NUMBER_OF_ROUNDS && freeSeatCount && !isInvalid) {
+    while (roundCount < NUMBER_OF_ROUNDS && evaluatorFreeSeatCount && !isInvalid) {
         roundCount++;
         const $currentMember = $("#members .team-member");
-        const newSeat = getNextSeat(currentMember, seatedMembers);
+        const { seat: newSeat, kaikaku } = getNextSeat({ ...currentMember }, [...evaluatorSeatedMembers]);
+        if (!evaluatorKaikakuUsed && kaikaku) {
+            const positionId = newSeat.tableId * 10 + newSeat.rowId * 5 + newSeat.seatId;
+            const $lastMember = $(`#position${positionId} .team-member`);
+            unseatMember();
+            if ($lastMember.length) {
+                await startAnimationFromSeat(evaluatorLastSeatUsed, $lastMember);
+                numberOfMembersSeated--;
+                $("#counter").text(numberOfMembersSeated);
+            }
+
+        }
         if (!newSeat) {
+            await sendHome($currentMember);
             $currentMember.remove();
             currentMember = createTeamMember();
             addNewTeamMember(currentMember);
@@ -46,7 +61,7 @@ async function startSimulation(firstMember) {
         currentMember = createTeamMember();
         addNewTeamMember(currentMember);
 
-        await startAnimation(newSeat, $currentMember);
+        await startAnimationToSeat(newSeat, $currentMember);
         numberOfMembersSeated++;
         $("#counter").text(numberOfMembersSeated);
     }
@@ -96,7 +111,7 @@ function addNewTeamMember(newMember) {
     return $teamMember;
 }
 
-async function startAnimation({ tableId, rowId, seatId }, $teamMember) {
+async function startAnimationToSeat({ tableId, rowId, seatId }, $teamMember) {
     const animateToPosition = tableId * 10 + rowId * 5 + seatId;
     const $newParent = $(`#position${animateToPosition}`);
     const $interMediateParent = $(`#row${tableId}AnimationStep${rowId}`);
@@ -105,28 +120,44 @@ async function startAnimation({ tableId, rowId, seatId }, $teamMember) {
     return animateToNewParent($teamMember, $newParent);
 }
 
-async function animateToNewParent(element, newParent) {
-    var oldOffset = element.offset();
-    element.appendTo(newParent);
-    var newOffset = element.offset();
+async function startAnimationFromSeat({ tableId, rowId }, $teamMember) {
+    const $interMediateParent = $(`#row${tableId}AnimationStep${rowId}`);
 
-    var $temp = element.clone().appendTo('body');
+    await animateToNewParent($teamMember, $interMediateParent);
+    return sendHome($teamMember);
+}
+
+async function animateToNewParent($element, $newParent) {
+    var oldOffset = $element.offset();
+    $element.appendTo($newParent);
+    var newOffset = $element.offset();
+
+    var $temp = $element.clone().appendTo('body');
     $temp.css({
         'position': 'absolute',
         'left': oldOffset.left,
         'top': oldOffset.top,
         'z-index': 1000
     });
-    element.hide();
+    $element.hide();
 
-    // 200 px/s speed
     const speed = Math.abs(Math.abs(newOffset.top - oldOffset.top) / animationSpeed - Math.abs(newOffset.left - oldOffset.left) / animationSpeed) * 1000;
     return new Promise((resolve) => {
         $temp.animate({ "top": newOffset.top, "left": newOffset.left }, speed, "linear", () => {
-            element.show();
+            $element.show();
             $temp.remove();
             resolve();
         });
+    });
+}
+
+async function sendHome($element) {
+    return new Promise((resolve) => {
+        $element.css({
+            'position': 'absolute'
+        });
+        $element.animate({ "top": "500px" }, (500 / animationSpeed) * 1000, "linear");
+        $element.fadeOut(600, resolve);
     });
 }
 
