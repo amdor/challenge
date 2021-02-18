@@ -34,7 +34,7 @@ function createTeamMember() {
     const isManager = Math.floor(Math.random() * 20) === 1;
     const teamName = TEAMS[randomTeam];
     const newMember = {
-        name: teamName,
+        teamName,
         imgSrc: TEAM_LOGO[teamName],
         isManager
     };
@@ -83,7 +83,7 @@ function evaluate() {
                 return;
             }
             row.forEach((member, seat) => {
-                if (member.name === (row[seat + 1] && row[seat + 1].name)) {
+                if (member.teamName === (row[seat + 1] && row[seat + 1].teamName)) {
                     sameCount++;
                     hasSame = true;
                     return;
@@ -121,7 +121,7 @@ function simulateWithoutUI() {
         evaluatorFreeSeatCount = NUMBER_OF_TABLES * 10
         while (roundCount < NUMBER_OF_ROUNDS && evaluatorFreeSeatCount && !isInvalid) {
             roundCount++;
-            const { seat: newSeat, kaikaku } = getNextSeat({...currentMember}, [...evaluatorSeatedMembers]);
+            const { seat: newSeat, kaikaku } = getNextSeat({ ...currentMember }, [...evaluatorSeatedMembers]) ?? {};
             if (!evaluatorKaikakuUsed && evaluatorKaikakuUsed) {
                 unseatMember();
             }

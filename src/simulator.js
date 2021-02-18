@@ -31,7 +31,7 @@ async function startSimulation(firstMember) {
     while (roundCount < NUMBER_OF_ROUNDS && evaluatorFreeSeatCount && !isInvalid) {
         roundCount++;
         const $currentMember = $("#members .team-member");
-        const { seat: newSeat, kaikaku } = getNextSeat({ ...currentMember }, [...evaluatorSeatedMembers]);
+        const { seat: newSeat, kaikaku } = getNextSeat({ ...currentMember }, [...evaluatorSeatedMembers]) ?? {};
         if (!evaluatorKaikakuUsed && kaikaku) {
             const positionId = newSeat.tableId * 10 + newSeat.rowId * 5 + newSeat.seatId;
             const $lastMember = $(`#position${positionId} .team-member`);
