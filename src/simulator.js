@@ -1,17 +1,14 @@
 let animationSpeed = 500; // px/s
 let numberOfMembersSeated = 0;
+let seriesCounter = 0;
 
 $(() => {
     initializeEvaluator();
-    initializeSolver();
 
-    initializeTables(NUMBER_OF_TABLES);
-
-    const newMember = createTeamMember();
-    addNewTeamMember(newMember);
+    initializeTables();
 
     $("#simulateButton").on("click", () => {
-        startSimulation(newMember);
+        startSimulationSeries();
     });
 
     $("#speedUpButton").on("click", () => {
@@ -22,20 +19,34 @@ $(() => {
     });
 });
 
+async function startSimulationSeries() {
+    seriesCounter++;
+    initializeSolver();
+    resetEvaluator();
+    resetTables();
+    await startSimulation();
+    setTimeout(() => {
+        if (seriesCounter < 5) {
+            startSimulationSeries();
+        }
+    }, 2000)
+}
 
-async function startSimulation(firstMember) {
+
+async function startSimulation() {
     let isInvalid = false;
 
     let roundCount = 0;
-    let currentMember = firstMember;
+    let currentMember = createTeamMember();
+    addNewTeamMember(currentMember);
     while (roundCount < NUMBER_OF_ROUNDS && evaluatorFreeSeatCount && !isInvalid) {
         roundCount++;
         const $currentMember = $("#members .team-member");
-        const { seat: newSeat, kaikaku } = getNextSeat({ ...currentMember }, [...evaluatorSeatedMembers]) ?? {};
+        const { seat: newSeat, kaikaku } = getNextSeat({ ...currentMember }, [...evaluatorSeats]) ?? {};
         if (!evaluatorKaikakuUsed && kaikaku) {
-            const positionId = newSeat.tableId * 10 + newSeat.rowId * 5 + newSeat.seatId;
+            const { tableId, rowId, seatId } = unseatMember();
+            const positionId = getPositionId(tableId, rowId, seatId);
             const $lastMember = $(`#position${positionId} .team-member`);
-            unseatMember();
             if ($lastMember.length) {
                 await startAnimationFromSeat(evaluatorLastSeatUsed, $lastMember);
                 numberOfMembersSeated--;
@@ -56,12 +67,17 @@ async function startSimulation(firstMember) {
         } catch (err) {
             alert(err.message);
             isInvalid = true;
+            continue;
         }
+
+        await seatMemberWithAnimation(newSeat, $currentMember);
+        const positionId = getPositionId(newSeat.tableId, newSeat.rowId, newSeat.seatId);
+        const $setupForTeam = $(`#setupForTeam${positionId}`);
+        $setupForTeam.empty();
+        $setupForTeam.append($(`<img src="${TEAM_LOGO[currentMember.teamName]}" />`));
 
         currentMember = createTeamMember();
         addNewTeamMember(currentMember);
-
-        await startAnimationToSeat(newSeat, $currentMember);
         numberOfMembersSeated++;
         $("#counter").text(numberOfMembersSeated);
     }
@@ -70,35 +86,58 @@ async function startSimulation(firstMember) {
     } else {
         $("#score").text(0);
     }
+    return;
 };
 
 
 //////////////////////////
 //// UI FUNTIONS /////////
 //////////////////////////
-function initializeTables(tableCount) {
-    for (let j = 0; j < tableCount; j++) {
-        const rowId = `row${j}`;
-        $("body").append(`<div id="${rowId}" class="row">
+function initializeTables() {
+    numberOfMembersSeated = 0
+    for (let tableId = 0; tableId < NUMBER_OF_TABLES; tableId++) {
+        const tableIdTag = `table${tableId}`;
+        $("body").append(`<div id="${tableIdTag}" class="tableContainer">
     <img class="table" src="assets/table.png" />
   </div>`);
-        const $row = $(`#${rowId}`);
+        const $table = $(`#${tableIdTag}`);
         for (let i = 0; i < 10; i++) {
-            const positionId = j * 10 + i;
-            $row.append(`<div id="position${positionId}" class="seat"></div>`);
+            const positionId = tableId * 10 + i;
+            $table.append(`<div id="position${positionId}" class="seat"></div>`);
+            $table.append(`<div id="setupForTeam${positionId}" class="setupIndicator"></div>`);
             $(`#position${positionId}`).css({
                 top: getTopForMember(i) + "px",
                 left: getLeftForMember(i) + "px",
             });
+
+            const $setupForTeam = $(`#setupForTeam${positionId}`);
+            $setupForTeam.css({
+                top: getTopForSetupIndicator(i) + "px",
+                left: getLeftForSetupIndicator(i) + "px",
+            });
+            const rowId = Math.floor(i / 5);
+            $setupForTeam.append($(`<img src="${TEAM_LOGO[evaluatorSeats[tableId][rowId][i - rowId * 5].setupForTeam]}" />`));
             if (i % 5 === 0) {
-                const animationStepId = `${rowId}AnimationStep${i / 5}`;
-                const rowPosition = $row.offset();
+                const animationStepId = `${tableIdTag}AnimationStep${i / 5}`;
+                const rowPosition = $table.offset();
                 $("body").append(`<div id="${animationStepId}" class="seat"></div>`);
                 const $animationStep = $(`#${animationStepId}`);
                 $animationStep.css({
                     top: rowPosition.top + getTopForMember(i) + "px",
-                    left: rowPosition.left + $row.outerWidth() - $animationStep.outerWidth()
+                    left: rowPosition.left + $table.outerWidth() - $animationStep.outerWidth()
                 });
+            }
+        }
+    }
+}
+
+function resetTables() {
+    numberOfMembersSeated = 0
+    for (let tableId = 0; tableId < NUMBER_OF_TABLES; tableId++) {
+        for (let rowId = 0; rowId < 2; rowId++) {
+            for (let seatId = 0; seatId < 5; seatId++) {
+                const positionToReset = getPositionId(tableId, rowId, seatId);
+                $(`#position${positionToReset} img`).remove();
             }
         }
     }
@@ -111,17 +150,17 @@ function addNewTeamMember(newMember) {
     return $teamMember;
 }
 
-async function startAnimationToSeat({ tableId, rowId, seatId }, $teamMember) {
-    const animateToPosition = tableId * 10 + rowId * 5 + seatId;
+async function seatMemberWithAnimation({ tableId, rowId, seatId }, $teamMember) {
+    const animateToPosition = getPositionId(tableId, rowId, seatId);
     const $newParent = $(`#position${animateToPosition}`);
-    const $interMediateParent = $(`#row${tableId}AnimationStep${rowId}`);
+    const $interMediateParent = $(`#table${tableId}AnimationStep${rowId}`);
 
     await animateToNewParent($teamMember, $interMediateParent);
     return animateToNewParent($teamMember, $newParent);
 }
 
 async function startAnimationFromSeat({ tableId, rowId }, $teamMember) {
-    const $interMediateParent = $(`#row${tableId}AnimationStep${rowId}`);
+    const $interMediateParent = $(`#table${tableId}AnimationStep${rowId}`);
 
     await animateToNewParent($teamMember, $interMediateParent);
     return sendHome($teamMember);
@@ -168,7 +207,18 @@ function getTopForMember(i) {
     return Math.floor(i / 5) * 105;
 }
 
+function getTopForSetupIndicator(i) {
+    return getTopForMember(i) + (Math.floor(i / 5) % 2 === 0 ? 45 : -30);
+}
+
 function getLeftForMember(i) {
     return 10 + (i % 5) * 57;
 }
 
+function getLeftForSetupIndicator(i) {
+    return getLeftForMember(i) + 5;
+}
+
+function getPositionId(tableId, rowId, seatId) {
+    return tableId * 10 + rowId * 5 + seatId;
+}

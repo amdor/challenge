@@ -1,38 +1,58 @@
-const NUMBER_OF_ROUNDS = 75;
-const NUMBER_OF_TABLES = 7;
-const TEAMS = { 0: "Loki", 1: "Berserkers", 2: "Sindri", 3: "Core" };
+const NUMBER_OF_ROUNDS = 43;
+const NUMBER_OF_TABLES = 4;
+const TEAMS = { 0: "Loki", 1: "Berserkers", 2: "Sindri", 3: "Thor", 4: "Freya", 5: "Yggdrasil" };
 const TEAM_LOGO = {
     "Loki": "assets/loki.png",
     "Berserkers": "assets/berserkers.png",
     "Sindri": "assets/sindri.png",
-    "Core": "assets/core.png"
+    "Thor": "assets/thor.png",
+    "Freya": "assets/freya.png",
+    "Yggdrasil": "assets/yggdrasil.png"
 };
 
 let evaluatorFreeSeatCount = NUMBER_OF_TABLES * 10;
 let evaluatorLastSeatUsed = { tableId: 0, rowId: 0, seatId: 0 };
 let evaluatorKaikakuUsed = false;
-const evaluatorSeatedMembers = new Array(NUMBER_OF_TABLES);
+let evaluatorSeats = new Array(NUMBER_OF_TABLES);
 
 function initializeEvaluator() {
     // [
     //     [ // table 0
     //         [ // row 0
-    //             memberAtSeat0 //seat 0
+    //             {member: {teamName: string, imgSrc: string, isManager: boolean}, setupForTeam: string} //seat 0
     //         ],
     //         [] // row 1
     //     ]
     // ]
-    for (let i = 0; i < evaluatorSeatedMembers.length; i++) {
-        evaluatorSeatedMembers[i] = [[], []];
+    for (let i = 0; i < evaluatorSeats.length; i++) {
+        evaluatorSeats[i] = [];
+        for (let j = 0; j < 2; j++) {
+            const row = [];
+            for (let i = 0; i < 5; i++) {
+                row.push({ member: undefined, setupForTeam: getRandomTeam() })
+            }
+            evaluatorSeats[i].push(row);
+        }
     }
     evaluatorKaikakuUsed = false;
     evaluatorLastSeatUsed = { tableId: 0, rowId: 0, seatId: 0 };
 }
 
-function createTeamMember() {
+function resetEvaluator() {
+    evaluatorSeats = evaluatorSeats.map(table => table.map(row => row.map(seat => ({ ...seat, member: undefined }))))
+    evaluatorKaikakuUsed = false;
+    evaluatorFreeSeatCount = NUMBER_OF_TABLES * 10;
+    evaluatorLastSeatUsed = { tableId: 0, rowId: 0, seatId: 0 };
+}
+
+function getRandomTeam() {
     const randomTeam = Math.floor(Math.random() * 4);
+    return TEAMS[randomTeam];
+}
+
+function createTeamMember() {
     const isManager = Math.floor(Math.random() * 20) === 1;
-    const teamName = TEAMS[randomTeam];
+    const teamName = getRandomTeam();
     const newMember = {
         teamName,
         imgSrc: TEAM_LOGO[teamName],
@@ -46,12 +66,12 @@ function seatMember(newSeat, member) {
     if (!evaluatorFreeSeatCount) {
         return;
     }
-    const row = evaluatorSeatedMembers[tableId] && evaluatorSeatedMembers[tableId][rowId];
-    if (!row || seatId > 4 || row[seatId] || (seatId > 0 && row[seatId - 1] === undefined)) {
+    const row = evaluatorSeats[tableId]?.[rowId];
+    if (!row || seatId > 4 || row[seatId].member) {
         throw new Error("invalid position");
     }
 
-    row[seatId] = member;
+    row[seatId].member = member;
     evaluatorLastSeatUsed = newSeat;
     evaluatorFreeSeatCount--;
     return;
@@ -59,31 +79,38 @@ function seatMember(newSeat, member) {
 
 function unseatMember() {
     evaluatorKaikakuUsed = true;
-    evaluatorSeatedMembers[evaluatorLastSeatUsed.tableId][evaluatorLastSeatUsed.rowId][evaluatorLastSeatUsed.seatId] = undefined;
+    const { tableId, rowId, seatId } = evaluatorLastSeatUsed;
+    evaluatorSeats[tableId][rowId][seatId].member = undefined;
+    return evaluatorLastSeatUsed;
 }
 
 
 function evaluate() {
     let result = 0;
-    evaluatorSeatedMembers.forEach((table, tableId) => {
+    evaluatorSeats.forEach((table, tableId) => {
         table.forEach((row, rowId) => {
             let sameCount = 1;
             let hasSame = false;
 
-            if (!row.length) {
-                result -= 10;
+            if (row[4].member?.isManager) {
+                result -= row.reduce((acc, seat) => {
+                    if (!seat.member) {
+                        return acc++;
+                    }
+                }, 0);
                 return;
             }
-
-            if (row.length < 5) {
-                result -= (5 - row.length);
-            }
-
-            if (row[4] && row[4].isManager) {
-                return;
-            }
-            row.forEach((member, seat) => {
-                if (member.teamName === (row[seat + 1] && row[seat + 1].teamName)) {
+            row.forEach((seat, seatId) => {
+                const { member, setupForTeam } = seat;
+                if (!member) {
+                    result -= 1;
+                    return;
+                }
+                if (member.teamName === setupForTeam) {
+                    result += 1;
+                }
+                seat.setupForTeam = member.teamName;
+                if (member.teamName === (row[seatId + 1] && row[seatId + 1].teamName)) {
                     sameCount++;
                     hasSame = true;
                     return;
@@ -92,18 +119,11 @@ function evaluate() {
                     case 2:
                         result += 1;
                         break;
-                    case 3:
-                    case 4:
-                        result += 2;
-                        break;
-                    case 5:
-                        result += 3;
-                        break;
                 }
                 sameCount = 1;
             });
             if (!hasSame) {
-                result += 3;
+                result += 2;
             }
         });
     });
@@ -121,7 +141,7 @@ function simulateWithoutUI() {
         evaluatorFreeSeatCount = NUMBER_OF_TABLES * 10
         while (roundCount < NUMBER_OF_ROUNDS && evaluatorFreeSeatCount && !isInvalid) {
             roundCount++;
-            const { seat: newSeat, kaikaku } = getNextSeat({ ...currentMember }, [...evaluatorSeatedMembers]) ?? {};
+            const { seat: newSeat, kaikaku } = getNextSeat({ ...currentMember }, [...evaluatorSeats]) ?? {};
             if (!evaluatorKaikakuUsed && evaluatorKaikakuUsed) {
                 unseatMember();
             }

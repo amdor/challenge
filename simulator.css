@@ -15,11 +15,17 @@ span {
   height: 35px;
 }
 
-.team-member,
 .seat,
-#members {
+#members,
+.team-member {
   width: 35px;
   height: 35px;
+}
+
+.setupIndicator,
+.setupIndicator img {
+  width: 25px;
+  height: 25px;
 }
 
 .table {
@@ -27,12 +33,13 @@ span {
   height: 150px;
 }
 
-.row {
+.tableContainer {
   position: relative;
   margin-top: 12px;
 }
 
-.seat {
+.seat,
+.setupIndicator {
   position: absolute;
   z-index: 1000;
 }
