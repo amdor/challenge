@@ -50,13 +50,19 @@ function getRandomTeam() {
     return TEAMS[randomTeam];
 }
 
+function getRandomSeatPreference() {
+    const randomPreferenceFunction = Math.floor(Math.random() * PREFERENCE_FUNCTIONS.length);
+    return PREFERENCE_FUNCTIONS[randomPreferenceFunction];
+}
+
 function createTeamMember() {
     const isManager = Math.floor(Math.random() * 20) === 1;
     const teamName = getRandomTeam();
     const newMember = {
         teamName,
         imgSrc: TEAM_LOGO[teamName],
-        isManager
+        isManager,
+        seatPreference: getRandomSeatPreference()
     };
     return newMember;
 };
@@ -91,23 +97,16 @@ function evaluate() {
         table.forEach((row, rowId) => {
             let sameCount = 1;
             let hasSame = false;
+            let rowValue = 0;
 
-            if (row[4].member?.isManager) {
-                result -= row.reduce((acc, seat) => {
-                    if (!seat.member) {
-                        return acc++;
-                    }
-                }, 0);
-                return;
-            }
             row.forEach((seat, seatId) => {
                 const { member, setupForTeam } = seat;
                 if (!member) {
-                    result -= 1;
+                    rowValue -= 1;
                     return;
                 }
                 if (member.teamName === setupForTeam) {
-                    result += 1;
+                    rowValue += 1;
                 }
                 seat.setupForTeam = member.teamName;
                 if (member.teamName === (row[seatId + 1] && row[seatId + 1].teamName)) {
@@ -117,14 +116,20 @@ function evaluate() {
                 }
                 switch (sameCount) {
                     case 2:
-                        result += 1;
+                        rowValue += 1;
                         break;
                 }
                 sameCount = 1;
+
+                rowValue += member.seatPreference({ tableId, rowId, seatId });
             });
             if (!hasSame) {
-                result += 2;
+                rowValue += 2;
             }
+            if (row[4].member?.isManager && rowValue > 0) {
+                return;
+            }
+            result += rowValue;
         });
     });
     return result;
