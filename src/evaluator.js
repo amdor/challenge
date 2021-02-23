@@ -51,8 +51,7 @@ function getRandomTeam() {
 }
 
 function getRandomSeatPreference() {
-    const randomPreferenceFunction = Math.floor(Math.random() * PREFERENCE_FUNCTIONS.length);
-    return PREFERENCE_FUNCTIONS[randomPreferenceFunction];
+    return getRandomPreferenceFunction();
 }
 
 function createTeamMember() {
@@ -105,23 +104,27 @@ function evaluate() {
                     rowValue -= 1;
                     return;
                 }
+                rowValue += member.seatPreference({ tableId, rowId, seatId });
                 if (member.teamName === setupForTeam) {
                     rowValue += 1;
                 }
                 seat.setupForTeam = member.teamName;
-                if (member.teamName === (row[seatId + 1] && row[seatId + 1].teamName)) {
+                if (member.teamName === (row[seatId + 1]?.teamName)) {
                     sameCount++;
                     hasSame = true;
                     return;
                 }
                 switch (sameCount) {
                     case 2:
+                    case 3:
                         rowValue += 1;
+                        break;
+                    case 4:
+                    case 5:
+                        rowValue += 2;
                         break;
                 }
                 sameCount = 1;
-
-                rowValue += member.seatPreference({ tableId, rowId, seatId });
             });
             if (!hasSame) {
                 rowValue += 2;

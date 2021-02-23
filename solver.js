@@ -23,9 +23,9 @@ function getNextSeat(nextMember, seats) {
         for (let rowId = 0; rowId < seats[tableId].length; rowId++) {
             const membersInRow = seats[tableId][rowId].map(elem => elem.member).filter(Boolean);
             if (membersInRow.length < 5) {
-                if (nextMember.teamName === seats[tableId][rowId][membersInRow.length].setupForTeam) {
-                    return { seat: { tableId, rowId, seatId: membersInRow.length } };
-                }
+                // if (nextMember.teamName === seats[tableId][rowId][membersInRow.length].setupForTeam) {
+                return { seat: { tableId, rowId, seatId: membersInRow.length } };
+                // }
             }
         }
     }
