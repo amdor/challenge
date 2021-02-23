@@ -27,8 +27,22 @@ function windowPreference(seat) {
     return -1;
 }
 
+function thatOneWierdGuyPreference(seat) {
+    const sum = seat.tableId + seat.rowId + seat.seatId;
+    const nthSeat = Math.floor(Math.random() * 4) + 10
+    if (sum % nthSeat === 0) {
+        return 3;
+    }
+    return -1;
+}
 
-const PREFERENCE_FUNCTIONS = [{ fn: frontPreference, odds: 0.4 }, { fn: backPreference, odds: 0.4 }, { fn: windowPreference, odds: 0.2 }];
+
+const PREFERENCE_FUNCTIONS = [
+    { fn: frontPreference, odds: 0.4 },
+    { fn: backPreference, odds: 0.4 },
+    { fn: windowPreference, odds: 0.2 },
+    { fn: thatOneWierdGuyPreference, odds: 0.05 }
+];
 
 
 function getRandomPreferenceFunction(oddsMultiplier = 1) {

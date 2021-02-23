@@ -19,7 +19,7 @@ function initializeEvaluator() {
     // [
     //     [ // table 0
     //         [ // row 0
-    //             {member: {teamName: string, imgSrc: string, isManager: boolean}, setupForTeam: string} //seat 0
+    //             {member: {teamName: string, imgSrc: string, isManager: boolean, seatPreference: (seat) => number}, setupForTeam: string} //seat 0
     //         ],
     //         [] // row 1
     //     ]
@@ -140,9 +140,10 @@ function evaluate() {
 
 function simulateWithoutUI() {
     let sum = 0;
+    initializeEvaluator();
     for (let i = 0; i < 100; i++) {
-        initializeEvaluator();
         initializeSolver();
+        resetEvaluator();
         let isInvalid = false;
         let currentMember = createTeamMember();
         let roundCount = 0;
@@ -150,7 +151,7 @@ function simulateWithoutUI() {
         while (roundCount < NUMBER_OF_ROUNDS && evaluatorFreeSeatCount && !isInvalid) {
             roundCount++;
             const { seat: newSeat, kaikaku } = getNextSeat({ ...currentMember }, [...evaluatorSeats]) ?? {};
-            if (!evaluatorKaikakuUsed && evaluatorKaikakuUsed) {
+            if (!evaluatorKaikakuUsed && kaikaku) {
                 unseatMember();
             }
 

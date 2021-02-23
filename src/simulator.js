@@ -1,5 +1,5 @@
 let animationSpeed = 500; // px/s
-let numberOfMembersSeated = 0;
+let simulatorNumberOfMembersSeated = 0;
 let seriesCounter = 0;
 
 $(() => {
@@ -49,8 +49,8 @@ async function startSimulation() {
             const $lastMember = $(`#position${positionId} .team-member`);
             if ($lastMember.length) {
                 await startAnimationFromSeat(evaluatorLastSeatUsed, $lastMember);
-                numberOfMembersSeated--;
-                $("#counter").text(numberOfMembersSeated);
+                simulatorNumberOfMembersSeated--;
+                $("#counter").text(simulatorNumberOfMembersSeated);
             }
 
         }
@@ -78,8 +78,8 @@ async function startSimulation() {
 
         currentMember = createTeamMember();
         addNewTeamMember(currentMember);
-        numberOfMembersSeated++;
-        $("#counter").text(numberOfMembersSeated);
+        simulatorNumberOfMembersSeated++;
+        $("#counter").text(simulatorNumberOfMembersSeated);
     }
     if (!isInvalid) {
         $("#score").text(evaluate());
@@ -94,7 +94,7 @@ async function startSimulation() {
 //// UI FUNTIONS /////////
 //////////////////////////
 function initializeTables() {
-    numberOfMembersSeated = 0
+    simulatorNumberOfMembersSeated = 0
     for (let tableId = 0; tableId < NUMBER_OF_TABLES; tableId++) {
         const tableIdTag = `table${tableId}`;
         $("body").append(`<div id="${tableIdTag}" class="tableContainer">
@@ -132,7 +132,7 @@ function initializeTables() {
 }
 
 function resetTables() {
-    numberOfMembersSeated = 0
+    simulatorNumberOfMembersSeated = 0
     for (let tableId = 0; tableId < NUMBER_OF_TABLES; tableId++) {
         for (let rowId = 0; rowId < 2; rowId++) {
             for (let seatId = 0; seatId < 5; seatId++) {
