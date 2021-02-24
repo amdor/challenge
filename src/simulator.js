@@ -37,9 +37,9 @@ async function startSimulation() {
     let isInvalid = false;
 
     let roundCount = 0;
-    let currentMember = createTeamMember();
-    addNewTeamMember(currentMember);
     while (roundCount < NUMBER_OF_ROUNDS && evaluatorFreeSeatCount && !isInvalid) {
+        currentMember = createTeamMember();
+        addNewTeamMember(currentMember);
         roundCount++;
         const $currentMember = $("#members .team-member");
         const { seat: newSeat, kaikaku } = getNextSeat({ ...currentMember }, [...evaluatorSeats]) ?? {};
@@ -57,8 +57,6 @@ async function startSimulation() {
         if (!newSeat) {
             await sendHome($currentMember);
             $currentMember.remove();
-            currentMember = createTeamMember();
-            addNewTeamMember(currentMember);
             continue;
         }
 
@@ -76,8 +74,6 @@ async function startSimulation() {
         $setupForTeam.empty();
         $setupForTeam.append($(`<img src="${TEAM_LOGO[currentMember.teamName]}" />`));
 
-        currentMember = createTeamMember();
-        addNewTeamMember(currentMember);
         simulatorNumberOfMembersSeated++;
         $("#counter").text(simulatorNumberOfMembersSeated);
     }
