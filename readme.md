@@ -7,15 +7,15 @@ In this challenge the goal is to create an algorithm that finds the ideal flexi-
 We have 4 tables, each table with 2 rows, each row consisting of 5-5 seats.
 We have infinite employees of which every day 43 comes to the office, each working in one of our 6 teams, arriving at the office one-by-one. We need to tell each of them where to sit. We can also decide to send them home, but the office is costly, so every vacant seat will yield a penalty.
 
-All seats have a setup from the previous day, each team sets up their desks ever so differently. Team members are happy to sit where they don't need to start the day with setting everything up. If they do sit at positions, they create their team's setup there, hence the next day that is going to wait anybody sitting there.
+All seats have a setup from the previous day, each team sets up their desks ever so differently. Team members are happy to sit where they don't need to start the day with setting everything up. If they do sit at such positions, they create their team's setup there, hence the next day that is going to wait for anybody sitting there.
 
-All people are different, and all employees have their seat preferences. There are places in the office they like to sit, and places they don't fancy. Watch out for the weird guy, he likes only a few desks in the office.
+All people are different, and all employees have their seat preferences. There are places in the office they like to sit, and places they don't fancy. Watch out for the weird guy, he likes only a few seats in the office.
 
-Team members also like to sit together, but the company also believes in diversity, thus both yields various awards.
+Team members also like to sit together, but the company also believes in diversity, thus both members sitting together and having mixed rows yield various awards.
 
-Team Leads don't like to sit at the right end of the rows, they get too much distractions there, which spoils there mood, and by association their mood spreads to the whole row.
+Team Leads don't like to sit at the right end of the rows, they get too much distractions there, which spoils their mood, and by association their mood spreads to the whole row.
 
-Since it is a very lean company, if the seating situation is dire the office manager can shout out KAIKAKU, which sends home the last seated member, who is happy to adapt to changes. This cannot occur more than once a day, that would lower the moral regardless of how lean we are.
+Since it is a very lean company, if the seating situation is dire the office manager can shout out KAIKAKU, which sends home the last seated member, who is happy to adapt to changes. This cannot occur more than once a day, that would lower the moral regardless of how lean this company is.
 
 ## Manual
 
