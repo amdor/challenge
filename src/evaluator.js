@@ -46,7 +46,7 @@ function resetEvaluator() {
 }
 
 function getRandomTeam() {
-    const randomTeam = Math.floor(Math.random() * 4);
+    const randomTeam = Math.floor(Math.random() * 6);
     return TEAMS[randomTeam];
 }
 
