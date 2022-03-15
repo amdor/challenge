@@ -57,6 +57,9 @@ Expected return type for `getNextSeat`
 } | undefined
 ```
 
+The chance for an arriving employee to be from a given team is equally 1/6 for each teams.
+The chance of the arriving employee to be a Team Lead is 1/20.
+
 ## Scoring
 
 - Every empty seat: -1
