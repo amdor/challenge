@@ -1,8 +1,12 @@
+/** exampleGlobalVar, feel free to delete it */
+let exampleGlobalVar;
+
 /**
- * This function will be called before every run, giving an opportunity to defined 
+ * This function will be called before every run, giving an opportunity to define 
  * your default values.
  */
 function initializeSolver() {
+    exampleGlobalVar = 0;
 }
 
 /**
@@ -15,7 +19,7 @@ function initializeSolver() {
  *  kaikaku?: boolean 
  * }
  * where seat defines `nextMember`'s seat should be
- * and kaikaku is a one off revert for the last seated member, the function can only return true once
+ * and kaikaku is a one off revert for the last seated member, the function can only return kaikaku = true once
  */
 function getNextSeat(nextMember, seats) {
     // example solver, to be replaced with your solution
@@ -29,5 +33,6 @@ function getNextSeat(nextMember, seats) {
             }
         }
     }
+    exampleGlobalVar++;
     return undefined
 }
