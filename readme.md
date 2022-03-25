@@ -24,7 +24,7 @@ You need to extend solver.js. There is `initializeSolver` which is called each "
 - return undefined to send home the employee
 - return undefined for the seat and kaikaku true, to send home both the employee that has arrived and the one last seated.
 
-kaikaku=true sends home the employee last seated. <br/><br/>
+kaikaku=true sends home the employee last seated. NOTE: the seat left empty will be set up for the team whose member leaving it! <br/><br/>
 Members have a seat preference function, this tells you how happy they are with a given seat. <br/>
 `setupForTeam` value tells what setup the seat currently has, it is first random, but then saved between days, so after `initializeSolver` is called again, it will have the same setup as `teamName` of the employee sitting there the previous day, or the initial value if nobody sat there.
 
@@ -57,6 +57,13 @@ Expected return type for `getNextSeat`
 } | undefined
 ```
 
+Feel free to use the following constants in your code, they are on the global scope:
+```javascript
+const NUMBER_OF_EMPLOYEES = 43;
+const NUMBER_OF_TABLES = 4;
+const TEAMS = { 0: "Loki", 1: "Berserkers", 2: "Sindri", 3: "Thor", 4: "Freya", 5: "Yggdrasil" };
+```
+
 ### Randomization and odds
 The chance for an arriving employee to be from a given team is equally 1/6 for each teams. <br/>
 The chance of the arriving employee to be a Team Lead is 1/20. There are inifinite number of employees for 6 teams so there might be multiple TLs for the same team, even on the same day! <br/>
@@ -75,9 +82,12 @@ For front preference, the closer you are to the 0th table, the happier the emplo
 - Every empty seat: -1
 - Every employee sitting at a desk that had been set up for her team: +1
 - For every employee their preference number at their chosen seat (be it positive or negative), this ranges from -2 to 3
-- 2 members of the same team sitting next to each other: +1
-- 4+ members of the same team sitting next to each other: +2
+- 2 members of the same team sitting next to each other: +1 / duo
+- 4+ members of the same team sitting next to each other: +2 / row (e.g. if only 1 team sits at 10 seat of a table, that's 4 points from this category)
 - no 2 employees sitting next to each other in the row are in the same team: +2 / row
-- for every if the employee sitting at the end of the row (rowN[4]) is a manager and that row would yield positive score, it is nulled. negative summ score of the row still counts
+- for every if the employee sitting at the end of the row (rowN[4]) is a manager (Team Lead) and that row would yield positive score, it is nulled. negative summ score of the row still counts
+
+Example row point counting: <br/>
+![row points example](assets/row_points.png)
 
 

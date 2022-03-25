@@ -209,7 +209,7 @@ const Simulator = (function () {
                 'position': 'absolute'
             });
             $element.animate({ "top": "500px" }, (500 / animationSpeed) * 1000, "linear");
-            $element.fadeOut(600, resolve);
+            $element.fadeOut((600 / animationSpeed) * 500, resolve);
         });
     }
 

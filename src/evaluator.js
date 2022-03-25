@@ -114,11 +114,11 @@ const Evaluator = (() => {
                     switch (sameCount) {
                         case 2:
                         case 3:
-                            rowValue += 1;
+                            rowValue += sameCount - 1;
                             break;
                         case 4:
                         case 5:
-                            rowValue += 2;
+                            rowValue += sameCount + 1;
                             break;
                     }
                     sameCount = 1;
