@@ -11,10 +11,10 @@ const TEAM_LOGO = {
 };
 
 const Evaluator = (() => {
-    let evaluatorFreeSeatCount = NUMBER_OF_TABLES * 10;
-    let evaluatorLastSeatUsed = { tableId: 0, rowId: 0, seatId: 0 };
-    let evaluatorKaikakuUsed = false;
-    let evaluatorSeats = new Array(NUMBER_OF_TABLES);
+    let freeSeatCount = NUMBER_OF_TABLES * 10;
+    let lastSeatUsed = { tableId: 0, rowId: 0, seatId: 0 };
+    let kaikakuUsed = false;
+    let seats = new Array(NUMBER_OF_TABLES);
 
     const initializeEvaluator = () => {
         // [
@@ -25,25 +25,25 @@ const Evaluator = (() => {
         //         [] // row 1
         //     ]
         // ]
-        for (let i = 0; i < Evaluator.evaluatorSeats.length; i++) {
-            Evaluator.evaluatorSeats[i] = [];
+        for (let i = 0; i < Evaluator.seats.length; i++) {
+            Evaluator.seats[i] = [];
             for (let j = 0; j < 2; j++) {
                 const row = [];
                 for (let i = 0; i < 5; i++) {
                     row.push({ member: undefined, setupForTeam: getRandomTeam() })
                 }
-                Evaluator.evaluatorSeats[i].push(row);
+                Evaluator.seats[i].push(row);
             }
         }
-        Evaluator.evaluatorKaikakuUsed = false;
-        Evaluator.evaluatorLastSeatUsed = { tableId: 0, rowId: 0, seatId: 0 };
+        Evaluator.kaikakuUsed = false;
+        Evaluator.lastSeatUsed = { tableId: 0, rowId: 0, seatId: 0 };
     }
 
     const resetEvaluator = () => {
-        Evaluator.evaluatorSeats = Evaluator.evaluatorSeats.map(table => table.map(row => row.map(seat => ({ ...seat, member: undefined }))))
-        Evaluator.evaluatorKaikakuUsed = false;
-        Evaluator.evaluatorFreeSeatCount = NUMBER_OF_TABLES * 10;
-        Evaluator.evaluatorLastSeatUsed = { tableId: 0, rowId: 0, seatId: 0 };
+        Evaluator.seats = Evaluator.seats.map(table => table.map(row => row.map(seat => ({ ...seat, member: undefined }))))
+        Evaluator.kaikakuUsed = false;
+        Evaluator.freeSeatCount = NUMBER_OF_TABLES * 10;
+        Evaluator.lastSeatUsed = { tableId: 0, rowId: 0, seatId: 0 };
     }
 
     const getRandomTeam = () => {
@@ -65,31 +65,33 @@ const Evaluator = (() => {
 
     const seatMember = (newSeat, member) => {
         const { tableId, rowId, seatId } = newSeat;
-        if (!Evaluator.evaluatorFreeSeatCount) {
+        if (!Evaluator.freeSeatCount) {
             return;
         }
-        const row = Evaluator.evaluatorSeats[tableId]?.[rowId];
-        if (!row || seatId > 4 || row[seatId].member) {
+        const targetSeat = Evaluator.seats[tableId]?.[rowId]?.[seatId];
+        if (!targetSeat || targetSeat.member) {
             throw new Error("invalid position");
         }
 
-        row[seatId].member = member;
-        Evaluator.evaluatorLastSeatUsed = newSeat;
-        Evaluator.evaluatorFreeSeatCount--;
+        targetSeat.member = member;
+        Evaluator.lastSeatUsed = { tableId, rowId, seatId };
+        Evaluator.freeSeatCount--;
         return;
     }
 
     const unseatMember = () => {
-        Evaluator.evaluatorKaikakuUsed = true;
-        const { tableId, rowId, seatId } = Evaluator.evaluatorLastSeatUsed;
-        Evaluator.evaluatorSeats[tableId][rowId][seatId].member = undefined;
-        return Evaluator.evaluatorLastSeatUsed;
+        Evaluator.kaikakuUsed = true;
+        const { tableId, rowId, seatId } = Evaluator.lastSeatUsed;
+        const seat = Evaluator.seats[tableId][rowId][seatId];
+        seat.setupForTeam = seat.member.teamName
+        seat.member = undefined;
+        return Evaluator.lastSeatUsed;
     }
 
 
     const evaluate = () => {
         let result = 0;
-        Evaluator.evaluatorSeats.forEach((table, tableId) => {
+        Evaluator.seats.forEach((table, tableId) => {
             table.forEach((row, rowId) => {
                 let sameCount = 1;
                 let hasSame = false;
@@ -144,11 +146,11 @@ const Evaluator = (() => {
             let isInvalid = false;
             let currentMember = createTeamMember();
             let roundCount = 0;
-            Evaluator.evaluatorFreeSeatCount = NUMBER_OF_TABLES * 10
-            while (roundCount < NUMBER_OF_EMPLOYEES && Evaluator.evaluatorFreeSeatCount && !isInvalid) {
+            Evaluator.freeSeatCount = NUMBER_OF_TABLES * 10
+            while (roundCount < NUMBER_OF_EMPLOYEES && Evaluator.freeSeatCount && !isInvalid) {
                 roundCount++;
-                const { seat: newSeat, kaikaku } = getNextSeat(cloneDeep(currentMember), cloneDeep(Evaluator.evaluatorSeats)) ?? {};
-                if (!Evaluator.evaluatorKaikakuUsed && kaikaku) {
+                const { seat: newSeat, kaikaku } = getNextSeat(cloneDeep(currentMember), cloneDeep(Evaluator.seats)) ?? {};
+                if (!Evaluator.kaikakuUsed && kaikaku) {
                     unseatMember();
                 }
 
@@ -179,10 +181,10 @@ const Evaluator = (() => {
     const cloneDeep = (obj) => JSON.parse(JSON.stringify(obj));
 
     return {
-        evaluatorFreeSeatCount,
-        evaluatorLastSeatUsed,
-        evaluatorKaikakuUsed,
-        evaluatorSeats,
+        freeSeatCount,
+        lastSeatUsed,
+        kaikakuUsed,
+        seats,
         initializeEvaluator,
         resetEvaluator,
         createTeamMember,

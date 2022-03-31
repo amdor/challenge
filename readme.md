@@ -75,7 +75,7 @@ There are 4 types of seat preferences, chosen randomly for each employee, but no
 | back       | 0.4  |
 | window     | 0.2  |
 | weirdGuy   | 0.05 |
-For front preference, the closer you are to the 0th table, the happier the employee, for back preference it's the reverse, and for window preference, the closer to the window the happier. Weird guy likes random seats, but s/he likes them very much (3 points worth so). Detailed preferences can be obtained through calling the preference function with a seat on a `member`(teammember a.k.a. employee) object, or check out [the code](./src/preference-functions.js).
+For front preference, the closer you are to the 0th table, the happier the employee, for back preference it's the reverse, and for window preference, the closer to the 0th seat the happier. Weird guy likes random seats, but s/he likes them very much (3 points worth so). Detailed preferences can be obtained through calling the preference function with a seat on a `member`(teammember a.k.a. employee) object, or check out [the code](./src/preference-functions.js).
 
 ## Scoring
 

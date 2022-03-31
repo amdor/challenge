@@ -39,7 +39,7 @@ const Simulator = (function () {
         resetTables();
         await startSimulation();
         setTimeout(() => {
-            if (seriesCounter < 5) {
+            if (seriesCounter < 1) {
                 startSimulationSeries();
             }
         }, 2000)
@@ -50,7 +50,7 @@ const Simulator = (function () {
         let isInvalid = false;
 
         let roundCount = 0;
-        while (roundCount < NUMBER_OF_EMPLOYEES && Evaluator.evaluatorFreeSeatCount && !isInvalid) {
+        while (roundCount < NUMBER_OF_EMPLOYEES && Evaluator.freeSeatCount && !isInvalid) {
             if (paused) {
                 await waitForPause();
                 continue;
@@ -59,13 +59,13 @@ const Simulator = (function () {
             addNewTeamMember(currentMember);
             roundCount++;
             const $currentMember = $("#members .team-member");
-            const { seat: newSeat, kaikaku } = getNextSeat(Evaluator.cloneDeep(currentMember), Evaluator.cloneDeep(Evaluator.evaluatorSeats)) ?? {};
-            if (!Evaluator.evaluatorKaikakuUsed && kaikaku) {
+            const { seat: newSeat, kaikaku } = getNextSeat(Evaluator.cloneDeep(currentMember), Evaluator.cloneDeep(Evaluator.seats)) ?? {};
+            if (!Evaluator.kaikakuUsed && kaikaku) {
                 const { tableId, rowId, seatId } = Evaluator.unseatMember();
                 const positionId = getPositionId(tableId, rowId, seatId);
                 const $lastMember = $(`#position${positionId} .team-member`);
                 if ($lastMember.length) {
-                    await startAnimationFromSeat(Evaluator.evaluatorLastSeatUsed, $lastMember);
+                    await startAnimationFromSeat(Evaluator.lastSeatUsed, $lastMember);
                     numberOfMembersSeated--;
                     $("#counter").text(numberOfMembersSeated);
                 }
@@ -129,7 +129,7 @@ const Simulator = (function () {
                     left: getLeftForSetupIndicator(i) + "px",
                 });
                 const rowId = Math.floor(i / 5);
-                $setupForTeam.append($(`<img src="${TEAM_LOGO[Evaluator.evaluatorSeats[tableId][rowId][i - rowId * 5].setupForTeam]}" />`));
+                $setupForTeam.append($(`<img src="${TEAM_LOGO[Evaluator.seats[tableId][rowId][i - rowId * 5].setupForTeam]}" />`));
                 if (i % 5 === 0) {
                     const animationStepId = `${tableIdTag}AnimationStep${i / 5}`;
                     const rowPosition = $table.offset();
