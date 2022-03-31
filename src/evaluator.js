@@ -85,6 +85,7 @@ const Evaluator = (() => {
         const seat = Evaluator.seats[tableId][rowId][seatId];
         seat.setupForTeam = seat.member.teamName
         seat.member = undefined;
+        Evaluator.freeSeatCount++;
         return Evaluator.lastSeatUsed;
     }
 
