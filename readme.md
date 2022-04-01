@@ -44,8 +44,9 @@ type Seat = {
         member: TeamMember,
         setupForTeam: string, // one of the team names from TEAMS
       };
-type Table = Seat[]; // length === 5
-type Office = Table[]; // length === 2
+type Row = Seat[]; // length === 5
+type Table = Row[]; // length === 2
+type Office = Table[]; // length === 4
 ```
 
 Expected return type for `getNextSeat`
