@@ -59,7 +59,7 @@ const Simulator = (function () {
             addNewTeamMember(currentMember);
             roundCount++;
             const $currentMember = $("#members .team-member");
-            const { seat: newSeat, kaikaku } = getNextSeat(Evaluator.cloneDeep(currentMember), Evaluator.cloneDeep(Evaluator.seats)) ?? {};
+            const { seat: newSeat, kaikaku } = getNextSeat(currentMember, Evaluator.cloneDeep(Evaluator.seats)) ?? {};
             if (!Evaluator.kaikakuUsed && kaikaku) {
                 const { tableId, rowId, seatId } = Evaluator.unseatMember();
                 const positionId = getPositionId(tableId, rowId, seatId);

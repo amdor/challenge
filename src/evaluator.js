@@ -163,7 +163,7 @@ const Evaluator = (() => {
             Evaluator.freeSeatCount = NUMBER_OF_TABLES * 10
             while (roundCount < NUMBER_OF_EMPLOYEES && Evaluator.freeSeatCount && !isInvalid) {
                 roundCount++;
-                const { seat: newSeat, kaikaku } = getNextSeat(cloneDeep(currentMember), cloneDeep(Evaluator.seats)) ?? {};
+                const { seat: newSeat, kaikaku } = getNextSeat(currentMember, cloneDeep(Evaluator.seats)) ?? {};
                 if (!Evaluator.kaikakuUsed && kaikaku) {
                     unseatMember();
                 }
