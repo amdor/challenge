@@ -5,13 +5,13 @@ In this challenge the goal is to create an algorithm that finds the ideal flexi-
 ## Story and setup
 
 We have 4 tables, each table with 2 rows, each row consisting of 5-5 seats.
-We have infinite employees of which every day __43__ comes to the office, each working in one of our 6 teams, arriving at the office one-by-one. We need to tell each of them where to sit. We can also decide to send them home, but the office is costly, so every vacant seat will yield a penalty.
+We have infinite employees of which every day __43__ come to the office, each working in one of our 6 teams, arriving at the office one-by-one. We need to tell each of them where to sit. We can also decide to send them home, but the office is costly, so every vacant seats will yield a penalty.
 
 All seats have a setup from the previous day, each team sets up their desks ever so differently. Team members are happy to sit where they don't need to start the day with setting everything up. If they do sit at such positions, they create their team's setup there, hence the next day that is going to wait for anybody sitting there.
 
 All people are different, and all employees have their seat preferences. There are places in the office they like to sit, and places they don't fancy. Watch out for the weird guy, he likes only a few seats in the office.
 
-Team members also like to sit together, but the company also believes in diversity, thus both members sitting together and having mixed rows yield various awards.
+Team members also like to sit together, but the company also believes in diversity, thus both members sitting together and having mixed rows yield various rewards.
 
 Team Leads don't like to sit at the right end of the rows, they get too much distractions there, which spoils their mood, and by association their mood spreads to the whole row.
 
@@ -81,6 +81,7 @@ For front preference, the closer you are to the 0th table, the happier the emplo
 
 - Every empty seat: -1
 - Every employee sitting at a desk that had been set up for her team: +1
+- TeamLead sitting at the right end of a row: maximum 0 points can be achieved for that row (still can be negative)
 - For every employee their preference number at their chosen seat (be it positive or negative), this ranges from -2 to 3
 - 2 members of the same team sitting next to each other: +1 / duo
 - 4+ members of the same team sitting next to each other: +2 / row (e.g. if only 1 team sits at 10 seat of a table, that's 4 points from this category)

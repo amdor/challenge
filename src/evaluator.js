@@ -102,6 +102,19 @@ const Evaluator = (() => {
                     const { member, setupForTeam } = seat;
                     if (!member) {
                         rowValue -= 1;
+                        if (sameCount > 1) {
+                            switch (sameCount) {
+                                case 2:
+                                case 3:
+                                    rowValue += sameCount - 1;
+                                    break;
+                                case 4:
+                                case 5:
+                                    rowValue += sameCount + 1;
+                                    break;
+                            }
+                            sameCount = 1;
+                        }
                         return;
                     }
                     rowValue += member.seatPreference({ tableId, rowId, seatId });
